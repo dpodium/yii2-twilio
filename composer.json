@@ -1,0 +1,27 @@
+{
+  "name": "dpodium/yii2-twilio",
+  "description": "Yii2 twilio is a wrapper for the Twilio PHP library. Allow yii2 application to use twilio services.",
+  "keywords": ["yii2", "twilio", "sms"],
+  "type": "yii2-extension",
+  "license": "BSD",
+  "authors": [
+    {
+      "name": "Sionghuat Chng",
+      "email": "sionghuat.chng@dpodium.com",
+      "homepage": "http://www.dpodium.com"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/dpodium/yii2-twilio",
+    "issues": "https://github.com/dpodium/yii2-twilio/issues"
+  },
+  "require": {
+    "yiisoft/yii2": "2.0.*",
+    "twilio/sdk": "5.2.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "dpodium\\yii2\\Twilio\\" : ""
+    }
+  }
+}
