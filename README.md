@@ -28,8 +28,8 @@ Once the extension is installed, simply modify your application configuration as
 return [
     'components' => [
     ...
-        'nexmo' => [
-                   'class' => dpodium\yii2\Twilio\NexmoManager::class,
+        'twilio' => [
+                   'class' => dpodium\yii2\Twilio\TwilioManager::class,
                    'config' => [
                                    'sid' => API_SID, //from twilio
                                    'token' => API_TOKEN, //from twilio
@@ -51,4 +51,4 @@ return [
 Usage
 _____
     Sending message
-    Yii::$app->nexmo->sendSms(TO, FROM, 'Test Message');
+    Yii::$app->twilio->sendSms(TO, FROM, 'Test Message');
