@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "dpodium\\yii2\\Twilio\\" : ""
+      "dpodium\\yii2\\Twilio\\" : "components/"
     }
   }
 }
