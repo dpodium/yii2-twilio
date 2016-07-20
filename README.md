@@ -52,3 +52,9 @@ Usage
 _____
     Sending message
     Yii::$app->twilio->sendSms(TO, FROM, 'Test Message');
+
+    Make call
+    Yii::$app->twilio->call(TO, FROM);
+
+    Generating TwiML
+    Yii::$app->twilio->generateTwiml();
