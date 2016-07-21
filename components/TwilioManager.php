@@ -10,9 +10,10 @@ class TwilioManager
 
     private $_client = null;
     private $_clientCapability = null;
+    private $_clientLookup = null;
 
     public function sendSms($to, $from, $text) {
-        $this->initClient();
+        $this->initClient('normal');
         $message = $this->_client->account->messages->sendMessage(
             $from, // From a valid Twilio number
             $to, // Text this number
@@ -22,9 +23,16 @@ class TwilioManager
         print $message->sid;
     }
 
-    public function call($to, $from, $musicUrl = null)
+    public function lookup($phoneNo) {
+        $this->initClient('lookup');
+        $number = $this->_clientLookup->phone_numbers->get($phoneNo);
+
+        print $number;
+    }
+
+    public function call($to, $from, $musicUrl)
     {
-        $this->initClient();
+        $this->initClient('normal');
         $call = $this->_client->account->calls->create(
             $from, // From a valid Twilio number
             $to, // Call this number
@@ -44,7 +52,7 @@ class TwilioManager
     }
 
 
-    private function initClient()
+    private function initClient($type)
     {
         if (!$this->config['sid']) {
             throw new InvalidConfigException('SID is required');
@@ -52,26 +60,26 @@ class TwilioManager
         if (!$this->config['token']) {
             throw new InvalidConfigException('Token is required');
         }
-        if ($this->_client === null) {
-            $client = new \Services_Twilio($this->config['sid'], $this->config['token']);
-            $this->_client = $client;
+        switch($type) {
+            case 'normal':
+                if ($this->_client === null) {
+                    $client = new \Services_Twilio($this->config['sid'], $this->config['token']);
+                    $this->_client = $client;
+                }
+                break;
+            case 'capability':
+                if ($this->_clientCapability === null) {
+                    $client = new \Services_Twilio_Capability($this->config['sid'], $this->config['token']);
+                    $this->_clientCapability = $client;
+                }
+                break;
+            case 'lookup':
+                if ($this->_clientLookup === null) {
+                    $client = new \Lookups_Services_Twilio($this->config['sid'], $this->config['token']);
+                    $this->_clientLookup = $client;
+                }
+                break;
         }
-        return $this->_client;
+        return $client;
     }
-
-    private function initClientCapability()
-    {
-        if (!$this->config['sid']) {
-            throw new InvalidConfigException('SID is required');
-        }
-        if (!$this->config['token']) {
-            throw new InvalidConfigException('Token is required');
-        }
-        if ($this->_clientCapability === null) {
-            $client = new \Services_Twilio_Capability($this->config['sid'], $this->config['token']);
-            $this->_clientCapability = $client;
-        }
-        return $this->_clientCapability;
-    }
-
 }

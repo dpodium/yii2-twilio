@@ -56,5 +56,8 @@ _____
     Make call
     Yii::$app->twilio->call(TO, FROM);
 
+    Lookup phone info
+    Yii::$app->twilio->lookup(PHONENO);
+
     Generating TwiML
     Yii::$app->twilio->generateTwiml();
