@@ -34,8 +34,6 @@ return [
                                    'sid' => API_SID, //from twilio
                                    'token' => API_TOKEN, //from twilio
                                ],
-                   //test or live mode
-                   'test_mode' => true,
                    //leave blank if not applicable
                    'proxy' => [
                                    'host' => HOST,

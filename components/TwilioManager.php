@@ -5,7 +5,6 @@ namespace dpodium\yii2\Twilio;
 class TwilioManager
 {
     public $config = [];
-    public $test_mode = true;
     public $proxy = null;
 
     private $_client = null;
