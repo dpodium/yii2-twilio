@@ -1,37 +1,72 @@
 <?php
 
 namespace dpodium\yii2\Twilio;
-
+use \Twilio\Exceptions\DeserializeException;
+use \Twilio\Exceptions\TwilioException;
 class TwilioManager
 {
     public $config = [];
     public $proxy = null;
 
     private $_client = null;
-    private $_clientCapability = null;
-    private $_clientLookup = null;
-
+    private $lookupType = ['carrier', 'caller-name'];
     public function sendSms($to, $from, $text) {
-        $this->initClient('normal');
+        $this->initClient();
         $message = $this->_client->account->messages->sendMessage(
             $from, // From a valid Twilio number
             $to, // Text this number
-            $text
+            [
+                'body' => $text
+            ]
         );
 
         print $message->sid;
     }
 
-    public function lookup($phoneNo) {
-        $this->initClient('lookup');
-        $number = $this->_clientLookup->phone_numbers->get($phoneNo);
+    /**
+    $countryCode: countryCode ISO2
+    $type: Possible values are carrier or caller-name. If not specified, the default is null.
+    Carrier information costs $0.005 per phone number looked up.
+    Caller Name information costs $0.01 per phone number looked up, and is currently ONLY available in the US.
+     */
+    public function lookup($phoneNo, $countryCode = null, $type = null) {
+        $this->initClient();
+        if($type && !in_array($type, $this->lookupType)) {
+            throw new Exception('Invalid lookup type.');
+        }
 
-        print $number;
+        try {
+            $number = $this->_client->lookups->phoneNumbers($phoneNo)->fetch(['CountryCode'=>$countryCode, 'Type'=>$type]);
+        } catch (DeserializeException $e) {
+            echo "<pre>";
+            var_dump($e);
+            echo "</pre>";
+            exit;
+        }
+        catch (TwilioException $e) {
+            echo "<pre>";
+            var_dump($e);
+            echo "</pre>";
+            exit;
+        }
+        if($number) {
+            $response = [
+                'countryCode' => $number->countryCode,
+                'phoneNumber' => $number->phoneNumber,
+                'nationalFormat' => $number->nationalFormat,
+                'carrier' => (array)$number->carrier,
+                'addOns' => (array)$number->addOns,
+                'request'=>$this->_client->lookups->phoneNumbers($phoneNo)->__toString(),
+            ];
+            return $response;
+        } else {
+            throw new Exception('API error.');
+        }
     }
 
     public function call($to, $from, $musicUrl)
     {
-        $this->initClient('normal');
+        $this->initClient();
         $call = $this->_client->account->calls->create(
             $from, // From a valid Twilio number
             $to, // Call this number
@@ -39,46 +74,27 @@ class TwilioManager
             //'http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient'
             $musicUrl
         );
-
         print $call;
     }
 
     public function generateTwiml() {
-        $response = new \Services_Twilio_Twiml();
+        $response = new \Twilio\Twiml();
         $response->say('Hello');
         $response->play('https://api.twilio.com/cowbell.mp3', array("loop" => 5));
         print $response;
     }
 
 
-    private function initClient($type)
+    private function initClient()
     {
-        if (!$this->config['sid']) {
-            throw new InvalidConfigException('SID is required');
+        if (!$this->_client) {
+            if (!$this->config['sid']) {
+                throw new InvalidConfigException('SID is required');
+            }
+            if (!$this->config['token']) {
+                throw new InvalidConfigException('Token is required');
+            }
+            $this->_client = new \Twilio\Rest\Client($this->config['sid'], $this->config['token']);
         }
-        if (!$this->config['token']) {
-            throw new InvalidConfigException('Token is required');
-        }
-        switch($type) {
-            case 'normal':
-                if ($this->_client === null) {
-                    $client = new \Services_Twilio($this->config['sid'], $this->config['token']);
-                    $this->_client = $client;
-                }
-                break;
-            case 'capability':
-                if ($this->_clientCapability === null) {
-                    $client = new \Services_Twilio_Capability($this->config['sid'], $this->config['token']);
-                    $this->_clientCapability = $client;
-                }
-                break;
-            case 'lookup':
-                if ($this->_clientLookup === null) {
-                    $client = new \Lookups_Services_Twilio($this->config['sid'], $this->config['token']);
-                    $this->_clientLookup = $client;
-                }
-                break;
-        }
-        return $client;
     }
 }
