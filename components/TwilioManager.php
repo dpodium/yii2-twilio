@@ -3,6 +3,7 @@
 namespace dpodium\yii2\Twilio;
 use \Twilio\Exceptions\DeserializeException;
 use \Twilio\Exceptions\TwilioException;
+use \yii\base\InvalidConfigException;
 class TwilioManager
 {
     public $config = [];
