@@ -36,20 +36,7 @@ class TwilioManager
             throw new Exception('Invalid lookup type.');
         }
 
-        try {
-            $number = $this->_client->lookups->phoneNumbers($phoneNo)->fetch(['CountryCode'=>$countryCode, 'Type'=>$type]);
-        } catch (DeserializeException $e) {
-            echo "<pre>";
-            var_dump($e);
-            echo "</pre>";
-            exit;
-        }
-        catch (TwilioException $e) {
-            echo "<pre>";
-            var_dump($e);
-            echo "</pre>";
-            exit;
-        }
+        $number = $this->_client->lookups->phoneNumbers($phoneNo)->fetch(['CountryCode'=>$countryCode, 'Type'=>$type]);
         if($number) {
             $response = [
                 'countryCode' => $number->countryCode,
